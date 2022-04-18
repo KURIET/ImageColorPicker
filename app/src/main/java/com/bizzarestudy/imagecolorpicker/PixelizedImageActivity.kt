@@ -2,27 +2,23 @@ package com.bizzarestudy.imagecolorpicker
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.ColorSpace
+import android.graphics.*
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
-import android.view.ScaleGestureDetector
 import android.view.View
-import android.widget.ImageView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.graphics.toColorLong
 import androidx.core.view.drawToBitmap
 import com.bizzarestudy.imagecolorpicker.databinding.ActivityPixelizedImageBinding
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
+import jp.wasabeef.glide.transformations.gpu.PixelationFilterTransformation
 import java.lang.String
 import kotlin.Boolean
 import kotlin.Int
@@ -57,8 +53,7 @@ class PixelizedImageActivity : AppCompatActivity() {
         //이미지 로딩
         Glide.with(applicationContext).asBitmap()
             .load(intent.getParcelableExtra<Uri>("imageUrl"))
-            .format(DecodeFormat.PREFER_ARGB_8888)
-            .override(Target.SIZE_ORIGINAL)
+            .transform(PixelationFilterTransformation(50f))
             .into(object : SimpleTarget<Bitmap?>() {
                 override fun onResourceReady(
                     resource: Bitmap,
