@@ -1,13 +1,11 @@
 package com.bizzarestudy.imagecolorpicker
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.bizzarestudy.imagecolorpicker.databinding.ActivityMainMenuBinding
 
 class MainMenuActivity : AppCompatActivity() {
@@ -29,26 +27,24 @@ class MainMenuActivity : AppCompatActivity() {
             startActivity(Intent(applicationContext, TakingPictureActivity::class.java))
         }
 
-        val launcher : ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult(),
-            object : ActivityResultCallback<ActivityResult>{
-                override fun onActivityResult(result: ActivityResult?) {
-                    if (result?.resultCode == RESULT_OK){
-                        val intent = result.data
-                        val uri = intent?.data
-                        Log.d(TAG,"load image uri : " + uri.toString())
+        val launcher : ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result?.resultCode == RESULT_OK) {
+                val intent = result.data
+                val uri = intent?.data
+                Log.d(TAG, "load image uri : " + uri.toString())
 
-                        if(uri != null){
-                            Log.d(TAG,"load image uri is not null")
-                            var intent2 = Intent(applicationContext, PixelizedImageActivity::class.java)
-                            intent2.putExtra("imageUrl", uri)
-                            startActivity(intent2)
-                        }
-                    }
+                if (uri != null) {
+                    Log.d(TAG, "load image uri is not null")
+                    val intentToPixel = Intent(applicationContext, PixelizedImageActivity::class.java)
+                    intentToPixel.putExtra("imageUrl", uri)
+                    startActivity(intentToPixel)
                 }
-            })
+            }
+        }
 
         viewBinding.loadPicture.setOnClickListener {
-            var intent = Intent()
+            val intent = Intent()
             intent.type = "image/*"
             intent.action = Intent.ACTION_GET_CONTENT
             launcher.launch(intent)

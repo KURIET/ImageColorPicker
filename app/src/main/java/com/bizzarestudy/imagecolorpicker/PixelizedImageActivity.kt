@@ -2,7 +2,9 @@ package com.bizzarestudy.imagecolorpicker
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -12,17 +14,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.drawToBitmap
 import com.bizzarestudy.imagecolorpicker.databinding.ActivityPixelizedImageBinding
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
-import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
-import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import jp.wasabeef.glide.transformations.gpu.PixelationFilterTransformation
-import java.lang.String
-import kotlin.Boolean
-import kotlin.Int
-import kotlin.toString
 
 
 class PixelizedImageActivity : AppCompatActivity() {
@@ -30,12 +24,13 @@ class PixelizedImageActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "CameraXApp"
         private const val INTERVAL = 40
-        private const val SIDE_LENGTH = INTERVAL*2-1
+        private const val SIDE_LENGTH = INTERVAL * 2 - 1
     }
 
     // 뷰바인딩
     private lateinit var viewBinding: ActivityPixelizedImageBinding
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewBinding = ActivityPixelizedImageBinding.inflate(layoutInflater)
@@ -44,52 +39,52 @@ class PixelizedImageActivity : AppCompatActivity() {
 
         val intent = intent
 
-        if(intent.hasExtra("imageUrl")){
-            Log.d(TAG,"imageUrl : " + intent.getParcelableExtra<Uri>("imageUrl").toString())
+        if (intent.hasExtra("imageUrl")) {
+            Log.d(TAG, "imageUrl : " + intent.getParcelableExtra<Uri>("imageUrl").toString())
         } else {
-            Log.d(TAG,"intent extra null")
+            Log.d(TAG, "intent extra null")
         }
 
         //이미지 로딩
         Glide.with(applicationContext).asBitmap()
             .load(intent.getParcelableExtra<Uri>("imageUrl"))
             .transform(PixelationFilterTransformation(50f))
-            .into(object : SimpleTarget<Bitmap?>() {
+            .into(object : CustomTarget<Bitmap?>() {
                 override fun onResourceReady(
                     resource: Bitmap,
                     transition: Transition<in Bitmap?>?
                 ) {
                     viewBinding.imageView.setImageBitmap(resource)
                 }
+
+                override fun onLoadCleared(placeholder: Drawable?) {
+
+                }
             })
 
-        viewBinding.shareButton.setOnClickListener(object : View.OnClickListener {
-            override fun onClick(p0: View?) {
-                val textIntent = Intent(Intent.ACTION_SEND)
-                textIntent.type = "text/plain"
-                textIntent.putExtra(Intent.EXTRA_TEXT,viewBinding.hexColorCode.text)
-                startActivity(Intent.createChooser(textIntent,"색상 hex code 공유"))
-            }
-        })
+        viewBinding.shareButton.setOnClickListener {
+            val textIntent = Intent(Intent.ACTION_SEND)
+            textIntent.type = "text/plain"
+            textIntent.putExtra(Intent.EXTRA_TEXT, viewBinding.hexColorCode.text)
+            startActivity(Intent.createChooser(textIntent, "색상 hex code 공유"))
+        }
 
-        var pixelColorInt: Int
-        var pixelX: Int
-        var pixelY: Int
         //이미지 로딩 후 리스너 별도로 등록
         viewBinding.imageView.setOnTouchListener(object : View.OnTouchListener {
+
             @SuppressLint("ClickableViewAccessibility")
-            override fun onTouch(view: View?, motionEvent: MotionEvent?): Boolean {
+            override fun onTouch(view: View?, motionEvent: MotionEvent): Boolean {
                 val bitmap = view!!.drawToBitmap(Bitmap.Config.ARGB_8888)
-                Log.d(TAG,"Touch coordinates : " + String.valueOf(motionEvent?.x) + ", " + String.valueOf(motionEvent?.y))
+                Log.d(TAG,"Touch coordinates : motionEvent.x, ${motionEvent.y}")
                 //0,0,0및 알파값도 표시
-                if (motionEvent!!.x < 0 || motionEvent!!.y < 0){
+                if (motionEvent.x < 0 || motionEvent.y < 0){
                     viewBinding.alphaValue.text = "x,y= -"
                     viewBinding.redValue.text = ""
                     viewBinding.blueValue.text = ""
                     viewBinding.greenValue.text = ""
                     return false
                 }
-                if (motionEvent!!.x > bitmap.width || motionEvent!!.y > bitmap.height){
+                if (motionEvent.x > bitmap.width || motionEvent.y > bitmap.height){
                     viewBinding.alphaValue.text = "x,y= +"
                     viewBinding.redValue.text = ""
                     viewBinding.blueValue.text = ""
@@ -97,19 +92,20 @@ class PixelizedImageActivity : AppCompatActivity() {
                     return false
                 }
 
-                when (motionEvent?.action) {
+                when (motionEvent.action) {
                     MotionEvent.ACTION_MOVE,
                     MotionEvent.ACTION_DOWN -> {
 
-                        pixelX = motionEvent.getAxisValue(MotionEvent.AXIS_X).toInt()
-                        pixelY = motionEvent.getAxisValue(MotionEvent.AXIS_Y).toInt()
-                        pixelColorInt = bitmap.getPixel(pixelX, pixelY)
+                        val pixelX = motionEvent.getAxisValue(MotionEvent.AXIS_X).toInt()
+                        val pixelY = motionEvent.getAxisValue(MotionEvent.AXIS_Y).toInt()
+                        val pixelColorInt = bitmap.getPixel(pixelX, pixelY)
+                        val pixelColorHexString = "#${Integer.toHexString(pixelColorInt)}"
 
                         viewBinding.alphaValue.text = Color.alpha(pixelColorInt).toString()
                         viewBinding.redValue.text = Color.red(pixelColorInt).toString()
                         viewBinding.blueValue.text = Color.blue(pixelColorInt).toString()
                         viewBinding.greenValue.text = Color.green(pixelColorInt).toString()
-                        viewBinding.hexColorCode.text = "#" + Integer.toHexString(pixelColorInt)
+                        viewBinding.hexColorCode.text = pixelColorHexString
 
                         if(pixelX > 1 && pixelY > 1 && pixelX < bitmap.width && pixelY < bitmap.height) {
                             viewBinding.subregion.setImageBitmap(Bitmap.createBitmap(
@@ -140,13 +136,6 @@ class PixelizedImageActivity : AppCompatActivity() {
                         viewBinding.shareButton.isEnabled = true
                         return true
                     }
-//                    MotionEvent.ACTION_UP -> {
-//                        viewBinding.alphaValue.text = "n/a"
-//                        viewBinding.redValue.text = "n/a"
-//                        viewBinding.blueValue.text = "n/a"
-//                        viewBinding.greenValue.text = "n/a"
-//                        return false
-//                    }
                 }
                 return false
             }

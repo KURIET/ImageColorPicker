@@ -1,29 +1,27 @@
 package com.bizzarestudy.imagecolorpicker
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 import android.Manifest
+import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import java.util.concurrent.Executors
-import androidx.camera.core.*
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.video.*
-import androidx.camera.video.VideoCapture
-import androidx.core.content.PermissionChecker
-import java.nio.ByteBuffer
+import com.bizzarestudy.imagecolorpicker.databinding.TakingPictureBinding
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
-import android.provider.MediaStore
-
-import android.content.ContentValues
-import android.content.Intent
-import android.os.Build
-import com.bizzarestudy.imagecolorpicker.databinding.TakingPictureBinding
+import java.util.concurrent.Executors
 
 class TakingPictureActivity : AppCompatActivity() {
 
@@ -35,8 +33,7 @@ class TakingPictureActivity : AppCompatActivity() {
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS =
             mutableListOf (
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO
+                Manifest.permission.CAMERA
             ).apply {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
                     add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -48,10 +45,6 @@ class TakingPictureActivity : AppCompatActivity() {
     private lateinit var viewBinding: TakingPictureBinding
     // 이미지 캡쳐
     private var imageCapture: ImageCapture? = null
-    // 비디오 캡쳐
-    private var videoCapture: VideoCapture<Recorder>? = null
-    // 녹화화
-    private var recording: Recording? = null
 
     private lateinit var cameraExecutor: ExecutorService
 
