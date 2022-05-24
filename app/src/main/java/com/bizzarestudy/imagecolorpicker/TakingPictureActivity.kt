@@ -161,7 +161,7 @@ class TakingPictureActivity : AppCompatActivity() {
                     val msg = "Photo capture succeeded: ${output.savedUri}"
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
-                    val intent = Intent(applicationContext, PixelizedImageActivity::class.java)
+                    val intent = Intent(applicationContext, ImageProcessActivity::class.java)
                     intent.putExtra("imageUrl", output.savedUri)
                     startActivity(intent)
                 }

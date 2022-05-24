@@ -36,7 +36,7 @@ class MainMenuActivity : AppCompatActivity() {
 
                 if (uri != null) {
                     Log.d(TAG, "load image uri is not null")
-                    val intentToPixel = Intent(applicationContext, PixelizedImageActivity::class.java)
+                    val intentToPixel = Intent(applicationContext, ImageProcessActivity::class.java)
                     intentToPixel.putExtra("imageUrl", uri)
                     startActivity(intentToPixel)
                 }
