@@ -30,6 +30,7 @@
         <activity android:name=".TakingPictureActivity"/>
         <activity android:name=".PixelizedImageActivity" />
         <activity android:name=".ImageProcessActivity" />
+        <activity android:name=".PixelActivity" />
     </application>
 
 </manifest>

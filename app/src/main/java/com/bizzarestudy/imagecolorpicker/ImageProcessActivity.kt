@@ -26,7 +26,7 @@ class ImageProcessActivity : AppCompatActivity() {
         }
 
         viewBinding.convertPixel.setOnClickListener {
-
+            startActivity(Intent(applicationContext, PixelActivity::class.java))
         }
 
 
