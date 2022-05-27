@@ -1,6 +1,7 @@
 package com.bizzarestudy.imagecolorpicker
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -26,7 +27,11 @@ class ImageProcessActivity : AppCompatActivity() {
         }
 
         viewBinding.convertPixel.setOnClickListener {
-            startActivity(Intent(applicationContext, PixelActivity::class.java))
+            val nextIntent = Intent(applicationContext, PixelActivity::class.java)
+            val uri = intent.getParcelableExtra<Uri>("imageUrl")
+            Log.i("KM-01", uri.toString())
+            nextIntent.putExtra("imageUrl", uri)
+            startActivity(nextIntent)
         }
 
 
