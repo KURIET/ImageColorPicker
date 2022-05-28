@@ -2,20 +2,30 @@ package com.bizzarestudy.imagecolorpicker
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.bizzarestudy.imagecolorpicker.databinding.ActivityPixelBinding
 import com.bizzarestudy.imagecolorpicker.presentation.pixels.PixelViewModel
 
 class PixelActivity: AppCompatActivity() {
 
+    private lateinit var viewBinding: ActivityPixelBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_pixel)
-
         val model: PixelViewModel by viewModels()
+        viewBinding = ActivityPixelBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
+
         val uri = intent.getParcelableExtra<Uri>("imageUrl")
-        val colors = model.getPixelColors(applicationContext, uri)
-        colors.forEach { Log.i("KM-01", "A: ${it.a}, R: ${it.r}, G: ${it.g}, B: ${it.b}") }
+//        val canvas = findViewById<PixelCanvas>(R.id.pixel_canvas)
+
+//        findViewById<ImageView>(R.id.target_image_view)
+//        viewBinding.targetImageView.setImageURI(uri)
+
+        runOnUiThread {
+            val pixelColorList = model.getPixelColorList(applicationContext, uri)
+            viewBinding.pixelCanvas.set(pixelColorList, model.pixelWidth, model.pixelHeight)
+        }
     }
 }

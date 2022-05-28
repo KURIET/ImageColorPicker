@@ -27,11 +27,10 @@ class ImageProcessActivity : AppCompatActivity() {
         }
 
         viewBinding.convertPixel.setOnClickListener {
-            val nextIntent = Intent(applicationContext, PixelActivity::class.java)
             val uri = intent.getParcelableExtra<Uri>("imageUrl")
-            Log.i("KM-01", uri.toString())
-            nextIntent.putExtra("imageUrl", uri)
-            startActivity(nextIntent)
+            startActivity(Intent(applicationContext, PixelActivity::class.java).apply {
+                putExtra("imageUrl", uri)
+            })
         }
 
 
