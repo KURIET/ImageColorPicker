@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import com.bizzarestudy.imagecolorpicker.domain.model.PixelColor
 
@@ -11,7 +12,7 @@ open class PixelCanvas @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-): View(context, attrs, defStyleAttr) {
+) : View(context, attrs, defStyleAttr) {
 
     private var pixel: Double = 1.0
     private var xCount: Int = 0
@@ -44,6 +45,8 @@ open class PixelCanvas @JvmOverloads constructor(
             }
         }
 
+        Log.i("KM-01", "pixel: $pixel")
+
         for (y in 0 until yCount) {
             for (x in 0 until xCount) {
                 val cur = colors[y * xCount + x]
@@ -53,10 +56,10 @@ open class PixelCanvas @JvmOverloads constructor(
                     style = Paint.Style.FILL
                 }
                 val rect = RectF().apply {
-                    left = (x.toDouble()  * pixel).toFloat()
-                    top = (y.toDouble()  * pixel).toFloat()
-                    right = (x.toDouble()  * pixel + pixel).toFloat()
-                    left = (y.toDouble() * pixel + pixel).toFloat()
+                    left = (x.toDouble() * pixel).toFloat()
+                    top = (y.toDouble() * pixel).toFloat()
+                    right = (x.toDouble() * pixel + pixel).toFloat()
+                    bottom = (y.toDouble() * pixel + pixel).toFloat()
                 }
                 canvas?.drawRect(rect, paint)
             }
@@ -67,5 +70,7 @@ open class PixelCanvas @JvmOverloads constructor(
         xCount = pixelWidth
         yCount = pixelHeight
         colors = pixelColorList
+        invalidate()
+        requestLayout()
     }
 }

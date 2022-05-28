@@ -13,29 +13,29 @@ import com.bizzarestudy.imagecolorpicker.domain.model.PixelColor
 
 class PixelViewModel constructor(application: Application) : AndroidViewModel(application) {
 
+    var colors: ArrayList<PixelColor> = arrayListOf()
     private lateinit var bitmap: Bitmap
     var pixelHeight: Int = 1
     var pixelWidth: Int = 1
     private var pixelWidthList: ArrayList<Int> = arrayListOf()
-    private var pixelIndex = 0
+    private var pixelIndex = 2
 
-    fun getPixelColorList(context: Context, uri: Uri?): ArrayList<PixelColor> {
+    fun getFirstColorList(context: Context, uri: Uri?): ArrayList<PixelColor> {
         bitmap = getBitmapFromUri(context, uri)
         pixelWidthList = by(bitmap.width)
-        pixelWidth = pixelWidthList[0]
+        pixelWidth = pixelWidthList[pixelIndex] + 1
         return getColors(pixelWidth)
     }
 
-    private fun getColors(pixelWidth: Int): ArrayList<PixelColor> {
+    private fun getColors(curWidth: Int): ArrayList<PixelColor> {
         val imageWidth = bitmap.width
+        pixelWidth = curWidth - 1
         pixelHeight = getCustomHeight(bitmap, pixelWidth)
-        val colors = arrayListOf<PixelColor>()
+        colors = arrayListOf()
         val chunk = imageWidth / (pixelWidth + 1)
-
-        Log.i("KM-01", "pixelHeight: $pixelHeight, pixelWidth: $pixelWidth")
-
+        Log.i("KM-01", "pixelHeight: $pixelHeight, pixelWidth: $curWidth")
         for (y in 0 until pixelHeight) {
-            for (x in 0 until pixelWidth) {
+            for (x in 0 until curWidth) {
                 val soft = bitmap.copy(Bitmap.Config.ARGB_8888, true)
                 val pixelColor = soft.getPixel(x * chunk, y * chunk)
                 colors.add(abgrToColor(pixelColor))
@@ -86,16 +86,20 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
         return if (hasBefore()) "Prev" else "First"
     }
 
-    fun showNext() {
+    fun showNext(): Boolean {
         if (hasNext()) {
             getColors(pixelWidthList[++pixelIndex])
+            return true
         }
+        return false
     }
 
-    fun showBefore() {
+    fun showBefore(): Boolean {
         if (hasBefore()) {
             getColors(pixelWidthList[--pixelIndex])
+            return true
         }
+        return false
     }
 
     fun hasNext(): Boolean {

@@ -23,9 +23,29 @@ class PixelActivity: AppCompatActivity() {
 //        findViewById<ImageView>(R.id.target_image_view)
 //        viewBinding.targetImageView.setImageURI(uri)
 
-        runOnUiThread {
-            val pixelColorList = model.getPixelColorList(applicationContext, uri)
-            viewBinding.pixelCanvas.set(pixelColorList, model.pixelWidth, model.pixelHeight)
+        viewBinding.beforeButton.setOnClickListener {
+            runOnUiThread {
+                if (model.showBefore()) {
+                    updatePixels(model)
+                }
+            }
         }
+
+        viewBinding.nextButton.setOnClickListener {
+            runOnUiThread {
+                if (model.showNext()) {
+                    updatePixels(model)
+                }
+            }
+        }
+
+        runOnUiThread {
+            model.getFirstColorList(applicationContext, uri)
+            updatePixels(model)
+        }
+    }
+
+    private fun updatePixels(model: PixelViewModel) {
+        viewBinding.pixelCanvas.set(model.colors, model.pixelWidth, model.pixelHeight)
     }
 }
