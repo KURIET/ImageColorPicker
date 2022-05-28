@@ -27,15 +27,15 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
         return getColors(pixelWidth)
     }
 
-    private fun getColors(curWidth: Int): ArrayList<PixelColor> {
+    private fun getColors(selectedPixel: Int): ArrayList<PixelColor> {
         val imageWidth = bitmap.width
-        pixelWidth = curWidth - 1
+        pixelWidth = selectedPixel - 1
         pixelHeight = getCustomHeight(bitmap, pixelWidth)
         colors = arrayListOf()
         val chunk = imageWidth / (pixelWidth + 1)
-        Log.i("KM-01", "pixelHeight: $pixelHeight, pixelWidth: $curWidth")
+        Log.i("KM-01", "pixelHeight: $pixelHeight, pixelWidth: $pixelWidth")
         for (y in 0 until pixelHeight) {
-            for (x in 0 until curWidth) {
+            for (x in 0 until pixelWidth) {
                 val soft = bitmap.copy(Bitmap.Config.ARGB_8888, true)
                 val pixelColor = soft.getPixel(x * chunk, y * chunk)
                 colors.add(abgrToColor(pixelColor))
@@ -45,14 +45,14 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
     }
 
     private fun getCustomHeight(bitmap: Bitmap, pixel: Int): Int {
-        return pixel * (bitmap.height / bitmap.width)
+        return (pixel * (bitmap.height.toDouble() / bitmap.width)).toInt()
     }
 
     private fun by(num: Int): ArrayList<Int> {
         val mid = num / 2
         val result = arrayListOf<Int>()
         for (i in 3..mid) {
-            if (num % i == 0 && i <= limitSize) {
+            if (num % i == 0 && i < limitSize) {
                 result.add(i - 1)
             }
         }

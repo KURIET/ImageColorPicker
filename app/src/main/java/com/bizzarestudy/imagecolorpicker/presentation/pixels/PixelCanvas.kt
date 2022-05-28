@@ -28,8 +28,9 @@ open class PixelCanvas @JvmOverloads constructor(
             return
         }
 
-        val screenWidth = resources.displayMetrics.widthPixels + 0.0
-        val screenHeight = resources.displayMetrics.heightPixels + 0.0
+        val density = resources.displayMetrics.density
+        val screenWidth = resources.displayMetrics.widthPixels.toFloat() / density + 0.0
+        val screenHeight = resources.displayMetrics.heightPixels.toFloat() / density + 0.0
 
         pixel = if (screenWidth < screenHeight) {
             screenWidth / xCount - 1
@@ -38,14 +39,15 @@ open class PixelCanvas @JvmOverloads constructor(
         }
 
         while (true) {
-            pixel += 0.00001
+            pixel += 0.0001
             if (pixel * xCount > screenWidth || pixel * yCount > screenHeight) {
-                pixel -= 0.00001
+                pixel -= 0.0001
+                pixel *= density
                 break
             }
         }
 
-        Log.i("KM-01", "pixel: $pixel")
+        Log.i("KM-01", "screenWidth: $screenWidth, screenHeight: $screenHeight, pixel: $pixel, density: $density")
 
         for (y in 0 until yCount) {
             for (x in 0 until xCount) {

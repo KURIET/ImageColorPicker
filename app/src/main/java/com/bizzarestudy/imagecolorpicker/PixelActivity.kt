@@ -1,7 +1,9 @@
 package com.bizzarestudy.imagecolorpicker
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.bizzarestudy.imagecolorpicker.databinding.ActivityPixelBinding
