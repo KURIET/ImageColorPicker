@@ -21,7 +21,8 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
     private var pixelIndex = 2
 
     fun getFirstColorList(context: Context, uri: Uri?): ArrayList<PixelColor> {
-        bitmap = getBitmapFromUri(context, uri)
+        val tempBitmap = getBitmapFromUri(context, uri)
+        bitmap = tempBitmap.copy(Bitmap.Config.ARGB_8888, true)
         pixelWidthList = by(bitmap.width)
         pixelWidth = pixelWidthList[pixelIndex] + 1
         return getColors(pixelWidth)
@@ -36,8 +37,7 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
         Log.i("KM-01", "pixelHeight: $pixelHeight, pixelWidth: $pixelWidth")
         for (y in 0 until pixelHeight) {
             for (x in 0 until pixelWidth) {
-                val soft = bitmap.copy(Bitmap.Config.ARGB_8888, true)
-                val pixelColor = soft.getPixel(x * chunk, y * chunk)
+                val pixelColor = bitmap.getPixel(x * chunk, y * chunk)
                 colors.add(abgrToColor(pixelColor))
             }
         }
