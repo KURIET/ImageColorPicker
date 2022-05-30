@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/canvas_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.pixels.PixelActivity">
+
+    <com.bizzarestudy.imagecolorpicker.presentation.pixels.PixelCanvas
+        android:id="@+id/pixel_canvas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:layout_height="300dp"
+        tools:layout_width="300dp" />
+
+    <Button
+        android:id="@+id/before_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="이전"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30dp"
+        android:layout_marginStart="30dp"/>
+
+    <Button
+        android:id="@+id/next_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="다음"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="30dp"
+        android:layout_marginEnd="30dp"/>
+
+
+</RelativeLayout>
