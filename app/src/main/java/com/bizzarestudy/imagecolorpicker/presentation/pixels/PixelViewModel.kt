@@ -50,12 +50,19 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
 
     private fun by(num: Int): ArrayList<Int> {
         val mid = num / 2
-        val result = arrayListOf<Int>()
+        val tempSet = HashSet<Int>()
         for (i in 3..mid) {
-            if (num % i == 0 && i < limitSize) {
-                result.add(i - 1)
+            if (num % i == 0 && i < LIMIT_SIZE) {
+                tempSet.add(i - 1)
             }
         }
+
+        if (tempSet.size < MINIMUM_PIXEL_LEVEL) {
+            tempSet.addAll(by(num-1))
+        }
+        val result = ArrayList<Int>()
+        tempSet.forEach { result.add(it) }
+        result.sort()
         return result
     }
 
@@ -111,7 +118,8 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
     }
 
     companion object {
-        const val limitSize: Int = 500
+        const val LIMIT_SIZE: Int = 500
+        const val MINIMUM_PIXEL_LEVEL = 8
     }
 
 }
