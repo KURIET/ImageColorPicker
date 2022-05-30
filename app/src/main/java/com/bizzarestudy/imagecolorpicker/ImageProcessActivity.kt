@@ -3,9 +3,9 @@ package com.bizzarestudy.imagecolorpicker
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.bizzarestudy.imagecolorpicker.databinding.ActivityImageProcessBinding
+import com.bizzarestudy.imagecolorpicker.presentation.pixels.PixelActivity
 
 class ImageProcessActivity : AppCompatActivity() {
 
