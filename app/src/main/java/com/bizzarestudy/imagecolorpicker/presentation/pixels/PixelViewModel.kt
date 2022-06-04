@@ -19,6 +19,7 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
 
     var colors: ArrayList<PixelColor> = arrayListOf()
     private lateinit var bitmap: Bitmap
+    private lateinit var fileSegName: String
     var pixelHeight: Int = 1
     var pixelWidth: Int = 1
     private var pixelWidthList: ArrayList<Int> = arrayListOf()
@@ -26,11 +27,15 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
 
     fun getFirstColorList(context: Context, uri: Uri?): ArrayList<PixelColor> {
         val tempBitmap = ImageUseCase.getBitmapFromUri(context, uri)
+        fileSegName = getNameFrom(uri)
+
         bitmap = tempBitmap.copy(Bitmap.Config.ARGB_8888, true)
         pixelWidthList = GetDivisors.by(bitmap.width)
         pixelWidth = pixelWidthList[pixelIndex] + 1
         return getColors(pixelWidth)
     }
+
+    private fun getNameFrom(uri: Uri?) = uri?.pathSegments!![uri.pathSegments!!.size - 1]
 
     private fun getColors(selectedPixel: Int): ArrayList<PixelColor> {
         val imageWidth = bitmap.width
@@ -94,7 +99,7 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
         val bitmapToSave = drawVirtualPixels(context)
 
         return try {
-            ImageUseCase.saveBitmap(context, bitmapToSave)
+            ImageUseCase.saveBitmap(context, bitmapToSave, fileSegName)
             true
         } catch (e: Exception) {
             false
@@ -105,7 +110,7 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
         val context = getContext()
         val share = Share(context)
         val bitmapToSave = drawVirtualPixels(context)
-        val uri = ImageUseCase.saveBitmapCache(context, bitmapToSave)
+        val uri = ImageUseCase.saveBitmap(context, bitmapToSave, fileSegName)
         share.shareFile(uri, "text", "subject")
     }
 

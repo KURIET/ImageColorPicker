@@ -19,10 +19,10 @@ object ImageUseCase {
 
     @Throws(IOException::class)
     fun saveBitmap(
-        context: Context, bitmap: Bitmap
+        context: Context, bitmap: Bitmap, fileSegName: String
     ): Uri {
 
-        val displayName = "color_picker_" + getRandom()
+        val displayName = "${fileSegName}_pixel"
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // https://stackoverflow.com/questions/56904485/how-to-save-an-image-in-android-q-using-mediastore
@@ -72,10 +72,6 @@ object ImageUseCase {
             }
             return file.toUri()
         }
-    }
-
-    fun saveBitmapCache(context: Context, bitmapToSave: Bitmap): Uri {
-        TODO()
     }
 
     private fun getRandom(): Int {
