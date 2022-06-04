@@ -10,18 +10,12 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.core.net.toUri
 import com.bizzarestudy.imagecolorpicker.domain.model.PixelColor
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 
 object ImageUseCase {
-    fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-        return stream.toByteArray()
-    }
 
     @Throws(IOException::class)
     fun saveBitmap(
@@ -78,6 +72,10 @@ object ImageUseCase {
             }
             return file.toUri()
         }
+    }
+
+    fun saveBitmapCache(context: Context, bitmapToSave: Bitmap): Uri {
+        TODO()
     }
 
     private fun getRandom(): Int {

@@ -26,7 +26,7 @@ class Share(
         clearShareCacheFolder()
         val shareIntent = Intent().apply { 
             action = Intent.ACTION_SEND
-            type = "*/*"
+            type = "image/png"
             putExtra(Intent.EXTRA_STREAM, fileUri)
             putExtra(Intent.EXTRA_TEXT, text)
             putExtra(Intent.EXTRA_SUBJECT, subject)

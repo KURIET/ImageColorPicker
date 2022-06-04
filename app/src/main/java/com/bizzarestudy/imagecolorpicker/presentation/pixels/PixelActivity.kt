@@ -6,7 +6,6 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.bizzarestudy.imagecolorpicker.databinding.ActivityPixelBinding
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -20,22 +19,14 @@ class PixelActivity : AppCompatActivity(), CoroutineScope {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewBinding = ActivityPixelBinding.inflate(layoutInflater)
-        setContentView(viewBinding.root)
-
-        val uri = intent.getParcelableExtra<Uri>("imageUrl")
-
-        launch {
-            runOnUiThread {
-                model.getFirstColorList(applicationContext, uri)
-                updatePixels(model)
-            }
-        }
+        setInitialView()
 
         viewBinding.beforeButton.setOnClickListener {
             launch {
                 runOnUiThread {
                     if (model.showBefore()) {
                         viewBinding.beforeButton.text = model.getBeforeString()
+                        viewBinding.nextButton.text = model.getNextString()
                         updatePixels(model)
                     }
                 }
@@ -46,6 +37,7 @@ class PixelActivity : AppCompatActivity(), CoroutineScope {
             launch {
                 runOnUiThread {
                     if (model.showNext()) {
+                        viewBinding.beforeButton.text = model.getBeforeString()
                         viewBinding.nextButton.text = model.getNextString()
                         updatePixels(model)
                     }
@@ -64,6 +56,21 @@ class PixelActivity : AppCompatActivity(), CoroutineScope {
 
         viewBinding.pixelShareButton.setOnClickListener {
             model.shareImage()
+        }
+    }
+
+    private fun setInitialView() {
+        setContentView(viewBinding.root)
+
+        val uri = intent.getParcelableExtra<Uri>("imageUrl")
+
+        launch {
+            runOnUiThread {
+                model.getFirstColorList(applicationContext, uri)
+                viewBinding.beforeButton.text = model.getBeforeString()
+                viewBinding.nextButton.text = model.getNextString()
+                updatePixels(model)
+            }
         }
     }
 

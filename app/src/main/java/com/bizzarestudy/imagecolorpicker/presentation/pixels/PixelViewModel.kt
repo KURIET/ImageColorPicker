@@ -3,14 +3,17 @@ package com.bizzarestudy.imagecolorpicker.presentation.pixels
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import com.bizzarestudy.imagecolorpicker.R
 import com.bizzarestudy.imagecolorpicker.data.GetDivisors
 import com.bizzarestudy.imagecolorpicker.data.ImageUseCase
+import com.bizzarestudy.imagecolorpicker.data.PixelWidth
 import com.bizzarestudy.imagecolorpicker.domain.model.PixelColor
 import com.bizzarestudy.imagecolorpicker.util.Share
-import java.lang.Exception
+import kotlin.math.roundToInt
 
 class PixelViewModel constructor(application: Application) : AndroidViewModel(application) {
 
@@ -50,11 +53,15 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
     }
 
     fun getNextString(): String {
-        return if (hasNext()) "Next" else "Last"
+        return if (hasNext()) getString(R.string.nextButton) else getString(R.string.lastButton)
     }
 
     fun getBeforeString(): String {
-        return if (hasBefore()) "Prev" else "First"
+        return if (hasBefore()) getString(R.string.prevButton) else getString(R.string.firstButton)
+    }
+
+    private fun getString(id: Int): String {
+        return getContext().resources.getString(id)
     }
 
     fun showNext(): Boolean {
@@ -82,8 +89,12 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
     }
 
     fun saveImage(): Boolean {
+
+        val context = getContext()
+        val bitmapToSave = drawVirtualPixels(context)
+
         return try {
-            ImageUseCase.saveBitmap(getApplication<Application>().applicationContext, bitmap)
+            ImageUseCase.saveBitmap(context, bitmapToSave)
             true
         } catch (e: Exception) {
             false
@@ -91,11 +102,32 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
     }
 
     fun shareImage() {
-        val share = Share(getApplication<Application>().applicationContext)
-        val uri = ImageUseCase.saveBitmap(getApplication<Application>().applicationContext, bitmap)
+        val context = getContext()
+        val share = Share(context)
+        val bitmapToSave = drawVirtualPixels(context)
+        val uri = ImageUseCase.saveBitmapCache(context, bitmapToSave)
         share.shareFile(uri, "text", "subject")
     }
 
+    private fun drawVirtualPixels(context: Context): Bitmap {
+        val pixel = PixelWidth.get(
+            context.resources,
+            pixelWidth,
+            pixelHeight
+        )
+        val bitmapToSave = Bitmap.createBitmap(
+            (pixelWidth * pixel).roundToInt(),
+            (pixelHeight * pixel).roundToInt(), Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmapToSave)
+        val pixelCanvas = PixelCanvas(context)
+        pixelCanvas.set(getColors(pixelWidthList[pixelIndex]), pixelWidth, pixelHeight)
+        pixelCanvas.draw(canvas)
+        return bitmapToSave
+    }
 
+    private fun getContext(): Context {
+        return getApplication<Application>().applicationContext
+    }
 
 }
