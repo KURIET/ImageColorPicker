@@ -2,9 +2,11 @@ package com.bizzarestudy.imagecolorpicker.presentation.pixels
 
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.bizzarestudy.imagecolorpicker.databinding.ActivityPixelBinding
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -33,6 +35,7 @@ class PixelActivity : AppCompatActivity(), CoroutineScope {
             launch {
                 runOnUiThread {
                     if (model.showBefore()) {
+                        viewBinding.beforeButton.text = model.getBeforeString()
                         updatePixels(model)
                     }
                 }
@@ -43,10 +46,24 @@ class PixelActivity : AppCompatActivity(), CoroutineScope {
             launch {
                 runOnUiThread {
                     if (model.showNext()) {
+                        viewBinding.nextButton.text = model.getNextString()
                         updatePixels(model)
                     }
                 }
             }
+        }
+
+        viewBinding.pixelSaveButton.setOnClickListener {
+            val result = model.saveImage()
+            if (result) {
+                Toast.makeText(applicationContext, "이미지 저장됨", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(applicationContext, "이미지 저장 실패", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        viewBinding.pixelShareButton.setOnClickListener {
+            model.shareImage()
         }
     }
 
