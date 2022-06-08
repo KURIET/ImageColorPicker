@@ -3,30 +3,39 @@ package com.bizzarestudy.imagecolorpicker.presentation.pixels
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
+import android.graphics.Canvas
 import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import com.bizzarestudy.imagecolorpicker.R
+import com.bizzarestudy.imagecolorpicker.data.GetDivisors
+import com.bizzarestudy.imagecolorpicker.data.ImageUseCase
+import com.bizzarestudy.imagecolorpicker.data.PixelWidth
 import com.bizzarestudy.imagecolorpicker.domain.model.PixelColor
+import com.bizzarestudy.imagecolorpicker.util.Share
+import kotlin.math.roundToInt
 
 class PixelViewModel constructor(application: Application) : AndroidViewModel(application) {
 
     var colors: ArrayList<PixelColor> = arrayListOf()
     private lateinit var bitmap: Bitmap
+    private lateinit var fileSegName: String
     var pixelHeight: Int = 1
     var pixelWidth: Int = 1
     private var pixelWidthList: ArrayList<Int> = arrayListOf()
     private var pixelIndex = 2
 
     fun getFirstColorList(context: Context, uri: Uri?): ArrayList<PixelColor> {
-        val tempBitmap = getBitmapFromUri(context, uri)
+        val tempBitmap = ImageUseCase.getBitmapFromUri(context, uri)
+        fileSegName = getNameFrom(uri)
+
         bitmap = tempBitmap.copy(Bitmap.Config.ARGB_8888, true)
-        pixelWidthList = by(bitmap.width)
+        pixelWidthList = GetDivisors.by(bitmap.width)
         pixelWidth = pixelWidthList[pixelIndex] + 1
         return getColors(pixelWidth)
     }
+
+    private fun getNameFrom(uri: Uri?) = uri?.pathSegments!![uri.pathSegments!!.size - 1]
 
     private fun getColors(selectedPixel: Int): ArrayList<PixelColor> {
         val imageWidth = bitmap.width
@@ -38,7 +47,7 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
         for (y in 0 until pixelHeight) {
             for (x in 0 until pixelWidth) {
                 val pixelColor = bitmap.getPixel(x * chunk, y * chunk)
-                colors.add(abgrToColor(pixelColor))
+                colors.add(ImageUseCase.abgrToColor(pixelColor))
             }
         }
         return colors
@@ -48,49 +57,16 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
         return (pixel * (bitmap.height.toDouble() / bitmap.width)).toInt()
     }
 
-    private fun by(num: Int): ArrayList<Int> {
-        val mid = num / 2
-        val tempSet = HashSet<Int>()
-        for (i in 3..mid) {
-            if (num % i == 0 && i < LIMIT_SIZE) {
-                tempSet.add(i - 1)
-            }
-        }
-
-        if (tempSet.size < MINIMUM_PIXEL_LEVEL) {
-            tempSet.addAll(by(num-1))
-        }
-        val result = ArrayList<Int>()
-        tempSet.forEach { result.add(it) }
-        result.sort()
-        return result
+    fun getNextString(): String {
+        return if (hasNext()) getString(R.string.nextButton) else getString(R.string.lastButton)
     }
 
-    private fun getBitmapFromUri(
-        context: Context,
-        uri: Uri?
-    ) = if (Build.VERSION.SDK_INT < 28) {
-        @Suppress("DEPRECATION")
-        MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-    } else {
-        val source = ImageDecoder.createSource(context.contentResolver, uri!!)
-        ImageDecoder.decodeBitmap(source)
+    fun getBeforeString(): String {
+        return if (hasBefore()) getString(R.string.prevButton) else getString(R.string.firstButton)
     }
 
-    private fun abgrToColor(argbColor: Int): PixelColor {
-        val a: Int = argbColor shr 24 and 0xff // or color >>> 24
-        val r: Int = argbColor shr 16 and 0xff
-        val g: Int = argbColor shr 8 and 0xff
-        val b: Int = argbColor and 0xff
-        return PixelColor(a, r, g, b)
-    }
-
-    fun hasNextString(): String {
-        return if (hasNext()) "Next" else "Last"
-    }
-
-    fun hasBeforeString(): String {
-        return if (hasBefore()) "Prev" else "First"
+    private fun getString(id: Int): String {
+        return getContext().resources.getString(id)
     }
 
     fun showNext(): Boolean {
@@ -109,17 +85,54 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
         return false
     }
 
-    fun hasNext(): Boolean {
+    private fun hasNext(): Boolean {
         return pixelIndex + 1 < pixelWidthList.size
     }
 
-    fun hasBefore(): Boolean {
+    private fun hasBefore(): Boolean {
         return 2 < pixelIndex
     }
 
-    companion object {
-        const val LIMIT_SIZE: Int = 500
-        const val MINIMUM_PIXEL_LEVEL = 8
+    fun saveImage(): Boolean {
+
+        val context = getContext()
+        val bitmapToSave = drawVirtualPixels(context)
+
+        return try {
+            ImageUseCase.saveBitmap(context, bitmapToSave, fileSegName)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun shareImage() {
+        val context = getContext()
+        val share = Share(context)
+        val bitmapToSave = drawVirtualPixels(context)
+        val uri = ImageUseCase.saveBitmap(context, bitmapToSave, fileSegName)
+        share.shareFile(uri, "text", "subject")
+    }
+
+    private fun drawVirtualPixels(context: Context): Bitmap {
+        val pixel = PixelWidth.get(
+            context.resources,
+            pixelWidth,
+            pixelHeight
+        )
+        val bitmapToSave = Bitmap.createBitmap(
+            (pixelWidth * pixel).roundToInt(),
+            (pixelHeight * pixel).roundToInt(), Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmapToSave)
+        val pixelCanvas = PixelCanvas(context)
+        pixelCanvas.set(getColors(pixelWidthList[pixelIndex]), pixelWidth, pixelHeight)
+        pixelCanvas.draw(canvas)
+        return bitmapToSave
+    }
+
+    private fun getContext(): Context {
+        return getApplication<Application>().applicationContext
     }
 
 }

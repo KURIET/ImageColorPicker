@@ -2,10 +2,13 @@ package com.bizzarestudy.imagecolorpicker.presentation.pixels
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
+import com.bizzarestudy.imagecolorpicker.data.PixelWidth
 import com.bizzarestudy.imagecolorpicker.domain.model.PixelColor
 
 open class PixelCanvas @JvmOverloads constructor(
@@ -28,26 +31,7 @@ open class PixelCanvas @JvmOverloads constructor(
             return
         }
 
-        val density = resources.displayMetrics.density
-        val screenWidth = resources.displayMetrics.widthPixels.toFloat() / density + 0.0
-        val screenHeight = resources.displayMetrics.heightPixels.toFloat() / density + 0.0
-
-        pixel = if (screenWidth < screenHeight) {
-            screenWidth / xCount - 1
-        } else {
-            screenHeight / yCount - 1
-        }
-
-        while (true) {
-            pixel += 0.0001
-            if (pixel * xCount > screenWidth || pixel * yCount > screenHeight) {
-                pixel -= 0.0001
-                pixel *= density
-                break
-            }
-        }
-
-        Log.i("KM-01", "screenWidth: $screenWidth, screenHeight: $screenHeight, pixel: $pixel, density: $density")
+        pixel = PixelWidth.get(resources, xCount, yCount)
 
         for (y in 0 until yCount) {
             for (x in 0 until xCount) {
