@@ -34,11 +34,10 @@ object ImageUseCase {
 
     fun drawPixels(
         context: Context,
-        bitmap: Bitmap,
         xCount: Int,
         yCount: Int,
         pixel: Double,
-        selectedPixel: Int
+        pixelColorList: ArrayList<PixelColor>
     ): Bitmap {
         val bitmapToSave = Bitmap.createBitmap(
             (xCount * pixel).roundToInt(),
@@ -48,26 +47,11 @@ object ImageUseCase {
         val pixelCanvas = PixelCanvas(context)
 
         // colors 가상 캔버스에 세팅
-        pixelCanvas.set(getColorsFrom(bitmap, selectedPixel), xCount, yCount)
+        pixelCanvas.set(pixelColorList, xCount, yCount)
 
         // 가상 캔버스에 픽셀 이미지 그리기
         pixelCanvas.draw(canvas)
         return bitmapToSave
-    }
-
-    private fun getColorsFrom(bitmap: Bitmap, selectedPixel: Int): ArrayList<PixelColor> {
-        val xCount = selectedPixel - 1
-        val yCount = getCustomHeight(bitmap, xCount)
-        val colors = arrayListOf<PixelColor>()
-        val chunk = bitmap.width / (xCount + 1)
-
-        for (y in 0 until yCount) {
-            for (x in 0 until xCount) {
-                val pixelColor = bitmap.getPixel(x * chunk, y * chunk)
-                colors.add(abgrToColor(pixelColor))
-            }
-        }
-        return colors
     }
 
     fun getCustomHeight(bitmap: Bitmap, pixel: Int): Int {

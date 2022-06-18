@@ -103,15 +103,12 @@ class PixelViewModel constructor(application: Application) : AndroidViewModel(ap
     fun shareImage() {
         val context = getContext()
         val bitmapToSave = drawVirtualPixels(context)
-        val uri = SaveUseCase.saveBitmap(context, bitmapToSave, fileSegName)
-
-        Share(context).shareFile(uri, "text", "subject")
+        Share(context).shareFile(bitmapToSave, "text", "subject")
     }
 
     private fun drawVirtualPixels(context: Context): Bitmap {
         val pixel = PixelWidth.get(context.resources, xCount, yCount)
-        val selectedPixel = xCountList[pixelIndex]
-        return ImageUseCase.drawPixels(context, bitmap, xCount, yCount, pixel, selectedPixel)
+        return ImageUseCase.drawPixels(context, xCount, yCount, pixel, colors)
     }
 
     private fun getContext(): Context {
