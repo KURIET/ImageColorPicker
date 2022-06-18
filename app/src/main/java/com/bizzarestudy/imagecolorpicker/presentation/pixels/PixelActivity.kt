@@ -75,7 +75,7 @@ class PixelActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun updatePixels(model: PixelViewModel) {
-        viewBinding.pixelCanvas.set(model.colors, model.pixelWidth, model.pixelHeight)
+        viewBinding.pixelCanvas.set(model.colors, model.xCount, model.yCount)
     }
 
     override fun onDestroy() {

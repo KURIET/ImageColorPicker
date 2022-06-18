@@ -9,7 +9,7 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -28,10 +28,20 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".TakingPictureActivity"/>
+        <activity android:name=".TakingPictureActivity" />
         <activity android:name=".PixelizedImageActivity" />
         <activity android:name=".ImageProcessActivity" />
         <activity android:name=".presentation.pixels.PixelActivity" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.bizzarestudy.imagecolorpicker"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
     </application>
 
 </manifest>
